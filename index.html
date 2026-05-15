@@ -263,10 +263,10 @@
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 px-6 py-6 transition-all duration-500 glass border-b-0 rounded-none border-x-0 border-t-0" id="navbar">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="text-blue-500 font-black text-xl tracking-tighter">SA</span>
-                <div class="w-[1px] h-5 bg-white/10 mx-1"></div>
-                <span class="font-bold tracking-[0.2em] text-[10px] uppercase text-white/90">Suryansh Arya</span>
+            <div class="flex items-center gap-3">
+                <span class="text-blue-500 font-black text-2xl tracking-tighter hover:scale-110 transition-transform cursor-default">SA</span>
+                <div class="w-[1px] h-6 bg-white/10 mx-1"></div>
+                <span class="font-bold tracking-[0.1em] text-sm md:text-base uppercase text-white/90">Suryansh Arya</span>
             </div>
             
             <!-- Mobile Menu Toggle -->
@@ -303,15 +303,15 @@
     <div id="page-container" class="relative">
         
         <!-- Home Section -->
-        <section id="home-sec" class="page-section active-section min-h-[85vh] pt-24 pb-12 px-6 flex flex-col justify-center items-center relative overflow-hidden hero-gradient">
-            <div class="max-w-7xl w-full z-10 grid grid-cols-12 gap-8 items-center">
+        <section id="home-sec" class="page-section active-section h-screen min-h-[600px] md:h-screen pt-20 pb-0 px-6 flex flex-col justify-center items-center relative overflow-hidden hero-gradient">
+            <div class="max-w-7xl w-full z-10 grid grid-cols-12 gap-8 items-end mb-12">
                 
-                <div class="col-span-12 lg:col-span-7 text-left space-y-6 relative py-12">
+                <div class="col-span-12 lg:col-span-7 text-left space-y-4 md:space-y-6 relative pb-12">
                     <div class="relative z-10">
-                        <div class="inline-block bg-blue-500 text-white font-black px-4 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.2em] mb-6 shadow-2xl shadow-blue-500/30">
+                        <div class="inline-block bg-blue-500 text-white font-black px-4 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.2em] mb-4 md:mb-6 shadow-2xl shadow-blue-500/30">
                             Digital Craftsman: Suryansh Arya
                         </div>
-                        <h1 class="text-4xl md:text-8xl font-bold leading-[1] tracking-tighter mb-8 hero-reveal">
+                        <h1 class="text-4xl md:text-7xl lg:text-8xl font-bold leading-[1] tracking-tighter mb-6 md:mb-8 hero-reveal">
                             I Build <span class="text-blue-500 italic">Modern</span><br>Websites To Help Your<br>Vision Come Alive
                         </h1>
                         <div class="flex flex-wrap gap-4 hero-reveal">
@@ -324,17 +324,17 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="col-span-12 lg:col-span-5 relative flex items-center justify-center py-8 hero-reveal min-h-[500px]">
+                
+                <div class="col-span-12 lg:col-span-5 relative flex items-end justify-end hero-reveal">
                     <!-- 3D Particles Background -->
                     <div id="particle-canvas-container" class="absolute inset-0 z-0 pointer-events-none opacity-60"></div>
                     
                     <!-- Pure Image -->
-                    <div class="relative w-full max-w-[450px] flex items-center justify-center z-10">
-                        <img id="hero-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e293b'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Studio Avatar" class="w-full h-auto object-contain relative z-20 transition-all duration-700 hover:scale-105 active:scale-95" style="filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));">
+                    <div class="relative w-full max-w-[550px] lg:max-w-none flex items-end justify-end z-10 translate-x-12 lg:translate-x-20">
+                        <img id="hero-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e293b'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Studio Avatar" class="w-full h-auto max-h-[85vh] object-contain relative z-20 transition-all duration-700 hover:scale-105 active:scale-95" style="filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));">
                         
                         <!-- Subtle Glow Behind only -->
-                        <div class="absolute inset-0 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+                        <div class="absolute inset-0 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none mb-12"></div>
                     </div>
                 </div>
             </div>
@@ -497,7 +497,7 @@
         <div class="flex gap-6 items-center">
             <span class="text-[10px] text-gray-400 uppercase tracking-[0.3em] font-bold">aryasuryansh0111@gmail.com</span>
             <div class="hidden md:block h-4 w-[1px] bg-white/20"></div>
-            <span onclick="toggleControlPanel()" class="cursor-pointer text-[10px] text-gray-600 font-bold hover:text-blue-500 transition-colors">© 2024 DESIGN STUDIO</span>
+            <span onclick="toggleControlPanel()" class="cursor-pointer text-[10px] text-gray-600 font-bold hover:text-blue-500 transition-colors">© 2026 DESIGN STUDIO</span>
         </div>
     </footer>
 
@@ -1274,14 +1274,26 @@
         function toggleControlPanel() {
             const panel = document.getElementById('control-panel');
             const isVisible = panel.style.display === 'block';
-            panel.style.display = isVisible ? 'none' : 'block';
+            
             if (!isVisible) {
+                // When opening, reset the view to login unless authenticated
+                if (sessionStorage.getItem('as_admin_auth') !== 'true') {
+                    document.getElementById('admin-login').classList.remove('hidden');
+                    document.getElementById('admin-content').classList.add('hidden');
+                } else {
+                    document.getElementById('admin-login').classList.add('hidden');
+                    document.getElementById('admin-content').classList.remove('hidden');
+                }
+                
+                panel.style.display = 'block';
                 gsap.from(panel, {
                     scale: 0.9,
                     opacity: 0,
                     duration: 0.4,
                     ease: "back.out(1.7)"
                 });
+            } else {
+                panel.style.display = 'none';
             }
         }
 
@@ -1355,12 +1367,6 @@
         // Final Initialization
         document.addEventListener('DOMContentLoaded', () => {
              initApp();
-             
-             // Check if already authenticated in this session
-             if (sessionStorage.getItem('as_admin_auth') === 'true') {
-                 document.getElementById('admin-login').classList.add('hidden');
-                 document.getElementById('admin-content').classList.remove('hidden');
-             }
         });
     </script>
 </body>
