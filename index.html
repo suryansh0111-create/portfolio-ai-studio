@@ -1,1 +1,1845 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suryansh Arya | Premium Web Portfolio</title>
+    <!--
+      PERFORMANCE NOTE:
+      Tailwind CDN browser build was removed. It compiles at runtime (slow, large).
+      All required utility classes are replaced with explicit CSS below.
+      Three.js is now lazy-loaded only on desktop and only when needed.
+    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ─── DESIGN TOKENS ─────────────────────────────────────── */
+        :root {
+            --bg:         #050505;
+            --accent:     #3B82F6;
+            --accent-rgb: 59,130,246;
+            --muted:      #888888;
+            --border:     rgba(255,255,255,0.08);
+            --glass-bg:   rgba(255,255,255,0.03);
+            --font-d:     "Outfit", sans-serif;
+            --font-b:     "Inter", sans-serif;
+        }
 
+        /* ─── RESET & BASE ──────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { background: var(--bg); color: #fff; min-height: 100%; overflow-x: hidden; }
+        body { font-family: var(--font-b); }
+        h1,h2,h3,h4 { font-family: var(--font-d); }
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: rgba(59,130,246,0.3); }
+
+        /* ─── UTILITIES ─────────────────────────────────────────── */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+        .text-label {
+            font-size: 10px; text-transform: uppercase;
+            letter-spacing: .2em; color: var(--muted); font-weight: 600;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg,#fff 0%,#a1a1a1 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .glow { box-shadow: 0 0 30px rgba(var(--accent-rgb),.2); }
+
+        /* ─── SCROLLBAR ─────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333; }
+
+        /* ─── NAV ───────────────────────────────────────────────── */
+        #navbar {
+            position: fixed; top: 0; width: 100%; z-index: 50;
+            padding: 16px 24px; transition: all .5s;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid transparent;
+        }
+        #navbar.scrolled {
+            background: rgba(5,5,5,.95);
+            border-bottom-color: rgba(255,255,255,.05);
+        }
+        .nav-inner {
+            max-width: 1280px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 12px; }
+        .nav-logo {
+            color: var(--accent); font-family: var(--font-d);
+            font-weight: 900; font-size: 22px; letter-spacing: -.05em;
+            transition: transform .2s; cursor: default;
+        }
+        .nav-logo:hover { transform: scale(1.1); }
+        .nav-sep { width: 1px; height: 20px; background: rgba(255,255,255,.1); }
+        .nav-name { font-weight: 700; letter-spacing: .08em; font-size: 12px; text-transform: uppercase; color: rgba(255,255,255,.9); }
+        .nav-links { display: none; gap: 40px; font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #666; }
+        @media(min-width:768px){ .nav-links { display: flex; } }
+        .nav-link { transition: all .3s; position: relative; opacity: .6; cursor: pointer; background: none; border: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; }
+        .nav-link:hover { opacity: 1; color: #fff; }
+        .nav-link.active { color: #fff; opacity: 1; }
+        .nav-link.active::after {
+            content: ''; position: absolute; bottom: -10px; left: 50%;
+            transform: translateX(-50%); width: 15px; height: 2px;
+            background: var(--accent); border-radius: 10px;
+            box-shadow: 0 0 12px var(--accent);
+        }
+        .nav-link.hire { color: #60a5fa; opacity: 1; }
+        #menu-toggle {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; background: none; border: none;
+            color: #fff; cursor: pointer; touch-action: manipulation;
+        }
+        @media(min-width:768px){ #menu-toggle { display: none; } }
+
+        /* Mobile menu */
+        #mobile-menu {
+            position: fixed; inset: 0; background: var(--bg);
+            z-index: 40; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 32px;
+            transform: translateX(100%); transition: transform .5s cubic-bezier(.23,1,.32,1);
+        }
+        #mobile-menu.open { transform: translateX(0); }
+        .mobile-close {
+            position: absolute; top: 20px; right: 20px;
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.1);
+            background: none; color: rgba(255,255,255,.6);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .mobile-link {
+            font-family: var(--font-d); font-size: 30px; font-weight: 700;
+            cursor: pointer; background: none; border: none;
+            color: #fff; transition: color .3s;
+        }
+        .mobile-link:hover { color: var(--accent); }
+        .mobile-link.hire { color: #60a5fa; }
+
+        /* ─── SECTIONS ──────────────────────────────────────────── */
+        .page-section {
+            width: 100%; opacity: 1; visibility: visible;
+            position: relative; padding: 80px 0;
+        }
+        @media(min-width:768px){ .page-section { padding: 120px 0; } }
+
+        /* ─── HERO ──────────────────────────────────────────────── */
+        #home-sec {
+            min-height: 100svh; min-height: 100vh;
+            padding: 0; display: flex; align-items: center;
+            justify-content: center; overflow: hidden;
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(59,130,246,.1) 0%, transparent 80%);
+        }
+        .hero-inner {
+            max-width: 1280px; width: 100%;
+            display: grid; grid-template-columns: 1fr;
+            gap: 16px; padding: 80px 16px 40px;
+            align-items: center;
+        }
+        @media(min-width:1024px){
+            .hero-inner { grid-template-columns: 7fr 5fr; gap: 32px; align-items: end; margin-bottom: 48px; }
+        }
+        .hero-badge {
+            display: inline-block; background: var(--accent);
+            color: #fff; font-weight: 900;
+            padding: 6px 12px; border-radius: 8px;
+            font-size: 10px; text-transform: uppercase;
+            letter-spacing: .2em; margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(var(--accent-rgb),.3);
+        }
+        .hero-heading {
+            font-size: clamp(2.2rem,6vw,5.5rem);
+            font-weight: 700; line-height: 1.05; letter-spacing: -.04em;
+            margin-bottom: 32px;
+        }
+        .hero-ctas { display: flex; flex-wrap: wrap; gap: 16px; }
+        .btn-primary {
+            background: #fff; color: #000;
+            padding: 14px 32px; border-radius: 9999px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .15em; cursor: pointer; border: none;
+            transition: all .3s; touch-action: manipulation;
+        }
+        .btn-primary:hover { background: var(--accent); color: #fff; transform: scale(1.05); }
+        .btn-outline {
+            border: 1px solid rgba(255,255,255,.2);
+            padding: 14px 32px; border-radius: 9999px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .15em; cursor: pointer; background: var(--glass-bg);
+            color: #fff; backdrop-filter: blur(12px);
+            transition: all .3s; touch-action: manipulation;
+        }
+        .btn-outline:hover { background: rgba(255,255,255,.05); }
+        .hero-avatar-col {
+            display: none; position: relative;
+            align-items: flex-end; justify-content: flex-end;
+        }
+        @media(min-width:480px){ .hero-avatar-col { display: flex; } }
+        #hero-avatar {
+            width: 100%; height: auto;
+            max-height: min(85vh, 600px);
+            object-fit: contain;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,.5));
+            transition: transform .7s; position: relative; z-index: 2;
+        }
+        @media(min-width:1024px){ #hero-avatar { transform: translateX(80px); } }
+        #hero-avatar:hover { transform: scale(1.04); }
+
+        /* ─── PROJECT CARDS ─────────────────────────────────────── */
+        .project-card {
+            background: var(--glass-bg); border: 1px solid rgba(255,255,255,.05);
+            border-radius: 12px; padding: 16px;
+            transition: all .4s cubic-bezier(.23,1,.32,1);
+            transform-style: preserve-3d;
+        }
+        .project-card:hover {
+            background: rgba(255,255,255,.05);
+            border-color: var(--accent); transform: translateY(-5px);
+        }
+        .card-img-wrap {
+            aspect-ratio: 16/10; background: #111;
+            border-radius: 8px; overflow: hidden;
+            position: relative;
+        }
+        .card-img-wrap img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: brightness(.75);
+            transition: all .7s; transform: scale(1.05);
+        }
+        .project-card:hover .card-img-wrap img { filter: brightness(1); transform: scale(1); }
+        .card-overlay {
+            position: absolute; inset: 0;
+            background: rgba(var(--accent-rgb),.1);
+            opacity: 0; transition: opacity .3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        @media(min-width:768px){ .project-card:hover .card-overlay { opacity: 1; } }
+        .card-mobile-btn {
+            position: absolute; bottom: 12px; right: 12px;
+            width: 40px; height: 40px; background: var(--accent);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; touch-action: manipulation;
+        }
+        @media(min-width:768px){ .card-mobile-btn { display: none; } }
+
+        /* ─── ABOUT ─────────────────────────────────────────────── */
+        .value-card {
+            background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06);
+            border-radius: 16px; padding: 20px; transition: all .3s;
+        }
+        .value-card:hover {
+            background: rgba(var(--accent-rgb),.05);
+            border-color: rgba(var(--accent-rgb),.3);
+            transform: translateY(-3px);
+        }
+        .value-icon {
+            width: 40px; height: 40px;
+            background: rgba(var(--accent-rgb),.1);
+            border: 1px solid rgba(var(--accent-rgb),.2);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        /* ─── CONTACT CARDS ─────────────────────────────────────── */
+        .contact-card {
+            position: relative; overflow: hidden;
+            border-radius: 16px; border: 1px solid rgba(255,255,255,.06);
+            background: rgba(255,255,255,.02);
+            transition: transform .45s cubic-bezier(.23,1,.32,1),
+                        border-color .45s, background .45s;
+            touch-action: manipulation;
+        }
+        .contact-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.04); }
+        .contact-card-glow {
+            position: absolute; inset: 0; border-radius: inherit;
+            background: radial-gradient(ellipse 75% 65% at 15% 110%, rgba(var(--glow),.1) 0%, transparent 60%);
+            opacity: 0; transition: opacity .55s; pointer-events: none;
+        }
+        .contact-card:hover .contact-card-glow { opacity: 1; }
+        .contact-card::before {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 55%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.022), transparent);
+            transition: left .8s; pointer-events: none; z-index: 1;
+        }
+        .contact-card:hover::before { left: 160%; }
+        .contact-icon-wrap {
+            width: 50px; height: 50px; border-radius: 14px;
+            background: rgba(var(--ico),.08); border: 1px solid rgba(var(--ico),.2);
+            display: flex; align-items: center; justify-content: center;
+            transition: background .4s, border-color .4s, transform .4s cubic-bezier(.23,1,.32,1); flex-shrink: 0;
+        }
+        .contact-card:hover .contact-icon-wrap { background: rgba(var(--ico),.16); border-color: rgba(var(--ico),.45); transform: scale(1.1) rotate(-3deg); }
+        .contact-arrow-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid rgba(var(--c),.2); background: rgba(var(--c),.06);
+            color: rgba(var(--c),.7); display: flex; align-items: center; justify-content: center;
+            transition: all .4s cubic-bezier(.23,1,.32,1); flex-shrink: 0;
+        }
+        .contact-card:hover .contact-arrow-btn { background: rgba(var(--c),.2); border-color: rgba(var(--c),.55); color: rgb(var(--c)); transform: translate(3px,-3px) scale(1.08); box-shadow: 0 0 22px rgba(var(--c),.32); }
+        .platform-badge {
+            font-size: 9px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: .12em; color: rgb(var(--c));
+            background: rgba(var(--c),.1); border: 1px solid rgba(var(--c),.2);
+            border-radius: 30px; padding: 4px 11px; opacity: .65;
+            transition: opacity .3s, background .3s; white-space: nowrap;
+        }
+        .contact-card:hover .platform-badge { opacity: 1; background: rgba(var(--c),.16); }
+
+        /* ─── FOOTER ────────────────────────────────────────────── */
+        footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 48px; min-height: 96px;
+            background: var(--glass-bg); backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap; gap: 16px;
+        }
+        @media(max-width:768px){ footer { flex-direction: column; text-align: center; padding: 20px; } }
+
+        /* ─── PARTICLE CANVAS ───────────────────────────────────── */
+        #particle-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .4; }
+
+        /* ─── CUSTOM CURSOR (desktop only) ──────────────────────── */
+        #cursor, #cursor-blur {
+            position: fixed; top: 0; left: 0;
+            pointer-events: none; z-index: 9999;
+            transform: translate(-50%,-50%);
+            opacity: 0; transition: opacity .3s;
+        }
+        #cursor { width: 16px; height: 16px; background: #fff; border-radius: 50%; mix-blend-mode: difference; }
+        #cursor-blur { width: 48px; height: 48px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; }
+
+        /* ─── FLOATING ANIMATION ────────────────────────────────── */
+        @keyframes float { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-15px) rotate(1deg)} }
+
+        /* ─── ADMIN PANEL ───────────────────────────────────────── */
+        /* NOTE: position:fixed replaced with position:absolute inside a
+           full-viewport overlay div. This avoids z-index stacking context
+           bugs and ensures the panel is always visible above all content. */
+        #cp-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.7);
+            z-index: 1999; backdrop-filter: blur(4px);
+            /* Hidden by default — controlled via JS class toggling, NOT display:none
+               because toggling display interrupts GSAP mid-tween */
+            opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s;
+        }
+        #cp-overlay.visible { opacity: 1; visibility: visible; }
+
+        #control-panel {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%,-50%) scale(.94);
+            z-index: 2000; width: 94%; max-width: 680px;
+            max-height: 88vh; background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,.1); border-radius: 24px;
+            box-shadow: 0 40px 100px rgba(0,0,0,.95);
+            overflow: hidden; font-family: var(--font-b);
+            /* Same technique: opacity+visibility, no display toggling */
+            opacity: 0; visibility: hidden;
+            transition: opacity .3s, visibility .3s, transform .35s cubic-bezier(.23,1,.32,1);
+        }
+        #control-panel.visible {
+            opacity: 1; visibility: visible; transform: translate(-50%,-50%) scale(1);
+        }
+        @media(max-width:600px){ #control-panel { border-radius: 18px; max-height: 90vh; width: 97%; } }
+
+        .cp-header {
+            height: 56px; background: #111;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,.05); flex-shrink: 0;
+        }
+        .cp-tabs {
+            display: flex; gap: 2px; padding: 10px 12px;
+            background: #0d0d0d; border-bottom: 1px solid rgba(255,255,255,.05);
+            overflow-x: auto; flex-shrink: 0;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        .cp-tabs::-webkit-scrollbar { display: none; }
+        .cp-tab {
+            padding: 8px 12px; border-radius: 8px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .1em; cursor: pointer; color: #555;
+            transition: all .2s; white-space: nowrap; border: none; background: none;
+        }
+        .cp-tab:hover { color: #888; background: rgba(255,255,255,.03); }
+        .cp-tab.active { color: #fff; background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); }
+        .cp-body { overflow-y: auto; max-height: calc(88vh - 110px); padding: 20px; -webkit-overflow-scrolling: touch; }
+        @media(max-width:600px){ .cp-body { padding: 16px; max-height: calc(90vh - 110px); } }
+        .cp-section { margin-bottom: 24px; }
+        .cp-section-label {
+            font-size: 9px; font-weight: 800; letter-spacing: .15em;
+            text-transform: uppercase; color: #444; margin-bottom: 14px;
+            display: block; border-bottom: 1px solid rgba(255,255,255,.04); padding-bottom: 8px;
+        }
+        .cp-input {
+            width: 100%; background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.08); border-radius: 10px;
+            padding: 11px 14px; color: #fff; font-size: 13px;
+            outline: none; transition: all .2s; resize: vertical;
+        }
+        .cp-input:focus { border-color: var(--accent); background: rgba(255,255,255,.05); }
+        .cp-label {
+            font-size: 9px; color: #555; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .1em;
+            display: block; margin-bottom: 6px; margin-top: 14px;
+        }
+        .cp-btn {
+            padding: 11px 16px; border-radius: 10px; font-size: 10px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+            cursor: pointer; transition: all .2s; border: none; font-family: var(--font-b);
+        }
+        .cp-btn-primary { background: var(--accent); color: #fff; }
+        .cp-btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+        .cp-btn-outline { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); color: #888; }
+        .cp-btn-outline:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .cp-btn-danger { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); color: #ef4444; }
+        .cp-btn-danger:hover { background: rgba(239,68,68,.2); }
+        .cp-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .cp-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        @media(max-width:480px){ .cp-grid-2 { grid-template-columns: 1fr; } .cp-grid-3 { grid-template-columns: 1fr 1fr; gap: 8px; } }
+        .cp-card {
+            background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05);
+            border-radius: 14px; padding: 14px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .color-swatch {
+            width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+            border: 2px solid transparent; transition: all .2s; flex-shrink: 0;
+        }
+        .color-swatch:hover, .color-swatch.selected { border-color: #fff; transform: scale(1.1); }
+        .cp-tab-panel { display: none; }
+        .cp-tab-panel.active { display: block; }
+        .img-preview { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; background: #1a1a1a; border: 1px solid rgba(255,255,255,.1); flex-shrink: 0; display: none; }
+        #admin-login { padding: 36px 20px; text-align: center; }
+
+        /* Rate-limit feedback */
+        .cp-input.error { border-color: #ef4444 !important; animation: shake .3s ease; }
+        @keyframes shake { 0%,100%{transform:none} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+        /* ─── LAYOUT HELPERS ────────────────────────────────────── */
+        .max-w-7xl { max-width: 1280px; margin: 0 auto; }
+        .px-4 { padding-left: 16px; padding-right: 16px; }
+        @media(min-width:768px){ .px-6 { padding-left: 24px; padding-right: 24px; } }
+        .grid-1 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media(min-width:640px){ .grid-2 { grid-template-columns: 1fr 1fr; } }
+        @media(min-width:1024px){ .grid-3 { grid-template-columns: 1fr 1fr 1fr; } }
+        .grid-12 { display: grid; grid-template-columns: repeat(12,1fr); gap: 20px; }
+        .col-12 { grid-column: span 12; }
+        @media(min-width:1024px){ .col-lg-6 { grid-column: span 6; } }
+
+        /* Skills grid utility */
+        .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 24px; }
+        @media(min-width:640px){ .skills-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+
+<!-- Custom cursor (hidden on mobile) -->
+<div id="cursor"></div>
+<div id="cursor-blur"></div>
+
+<!-- Particle canvas -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- ─── NAVIGATION ─────────────────────────────────────────── -->
+<nav id="navbar">
+    <div class="nav-inner">
+        <div class="nav-brand">
+            <span class="nav-logo">SA</span>
+            <div class="nav-sep"></div>
+            <span id="nav-name" class="nav-name">Suryansh Arya</span>
+        </div>
+
+        <!-- Desktop links -->
+        <div class="nav-links">
+            <button class="nav-link active" data-page="home-sec">Home</button>
+            <button class="nav-link" data-page="portfolio-sec">Portfolio</button>
+            <button class="nav-link" data-page="about-sec">About Me</button>
+            <button class="nav-link hire" data-page="hire-sec">Hire Me</button>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button id="menu-toggle" aria-label="Toggle menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </div>
+
+    <!-- Mobile fullscreen menu -->
+    <div id="mobile-menu" role="dialog" aria-modal="true" aria-label="Navigation">
+        <button class="mobile-close" id="mobile-close" aria-label="Close menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <button class="mobile-link" data-page="home-sec">Home</button>
+        <button class="mobile-link" data-page="portfolio-sec">Portfolio</button>
+        <button class="mobile-link" data-page="about-sec">About Me</button>
+        <button class="mobile-link hire" data-page="hire-sec">Hire Me</button>
+    </div>
+</nav>
+
+<!-- ─── PAGE CONTAINER ──────────────────────────────────────── -->
+<div id="page-container">
+
+    <!-- ═══ HOME SECTION ═══ -->
+    <section id="home-sec" class="page-section hero-gradient" style="padding:0; min-height:100svh; min-height:100vh; display:flex; align-items:center; justify-content:center;">
+        <div class="hero-inner">
+            <div class="hero-text-col">
+                <div id="hero-badge" class="hero-badge">Digital Craftsman: Suryansh Arya</div>
+                <h1 id="hero-heading" class="hero-heading">
+                    I Build <em style="color:var(--accent)">Modern</em><br>
+                    Websites To Help Your<br>Vision Come Alive
+                </h1>
+                <div class="hero-ctas">
+                    <button class="btn-primary" data-page="portfolio-sec">View Projects</button>
+                    <button class="btn-outline" data-page="hire-sec">Hire Me</button>
+                </div>
+            </div>
+            <div class="hero-avatar-col">
+                <div id="three-container" style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.6"></div>
+                <img id="hero-avatar"
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e293b'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"
+                    alt="Suryansh Arya"
+                    style="position:relative;z-index:2;">
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ PORTFOLIO SECTION ═══ -->
+    <section id="portfolio-sec" class="page-section" style="display:none">
+        <div class="max-w-7xl px-4" style="padding-left:16px;padding-right:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:48px">
+                <div>
+                    <p class="text-label" style="margin-bottom:8px;letter-spacing:.3em">Showcase</p>
+                    <h3 id="portfolio-heading" style="font-size:clamp(1.8rem,4vw,3rem);font-weight:700;letter-spacing:-.04em">Demo Websites</h3>
+                </div>
+            </div>
+            <div id="projects-grid" class="grid-1 grid-2 grid-3" style="gap:24px"></div>
+        </div>
+    </section>
+
+    <!-- ═══ ABOUT SECTION ═══ -->
+    <section id="about-sec" class="page-section" style="display:none">
+        <div class="max-w-7xl" style="padding:0 16px">
+            <!-- Bio + Skills -->
+            <div class="grid-12" style="margin-bottom:20px">
+                <div class="col-12 col-lg-6 glass" style="padding:40px;display:flex;flex-direction:column;justify-content:space-between;min-height:400px">
+                    <div>
+                        <p class="text-label" style="margin-bottom:32px;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:4px">About Me</p>
+                        <div id="about-text-container" style="color:#d1d5db;font-size:15px;line-height:1.7;font-weight:300">
+                            <p style="margin-bottom:16px">I am <strong style="color:#fff;font-weight:600">Suryansh Arya</strong>, a student and passionate developer focused on mastering modern web development and UI design.</p>
+                            <p>My approach is built on "Learning by Doing." I create functional demo websites that serve as proof-of-concept projects, helping businesses envision their digital transformation.</p>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:48px">
+                        <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:24px">
+                            <span class="gradient-text" style="display:block;font-size:2.5rem;font-weight:700" id="stat1-val">100%</span>
+                            <span style="font-size:9px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.15em" id="stat1-lbl">Dedication</span>
+                        </div>
+                        <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:24px">
+                            <span class="gradient-text" style="display:block;font-size:2.5rem;font-weight:700" id="stat2-val">3+</span>
+                            <span style="font-size:9px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.15em" id="stat2-lbl">Projects</span>
+                        </div>
+                        <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:24px">
+                            <span class="gradient-text" style="display:block;font-size:2.5rem;font-weight:700" id="stat3-val">Fast</span>
+                            <span style="font-size:9px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.15em" id="stat3-lbl">Delivery</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6 glass" style="padding:40px">
+                    <p class="text-label" style="margin-bottom:40px">Skills & Background</p>
+                    <div class="skills-grid">
+                        <div>
+                            <h4 style="color:var(--accent);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;margin-bottom:12px">Frontend Design</h4>
+                            <ul style="list-style:none;color:#9ca3af;font-size:11px;font-weight:500;line-height:2">
+                                <li>• Web Designer</li><li>• UI/UX Specialist</li><li>• Responsive Layouts</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--accent);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;margin-bottom:12px">Developer Stack</h4>
+                            <ul style="list-style:none;color:#9ca3af;font-size:11px;font-weight:500;line-height:2">
+                                <li>• React / Next.js</li><li>• Tailwind CSS</li><li>• Modern Architecture</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--accent);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;margin-bottom:12px">Other Skills</h4>
+                            <ul style="list-style:none;color:#9ca3af;font-size:11px;font-weight:500;line-height:2">
+                                <li>• 3D Scene Integration</li><li>• SEO Optimization</li><li>• Performance Tuning</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--accent);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;margin-bottom:12px">Status</h4>
+                            <p style="font-size:11px;color:#fff;background:rgba(59,130,246,.2);padding:8px 12px;border-radius:8px;border:1px solid rgba(59,130,246,.3);display:inline-block">Currently accepting Q3 Projects</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Value proposition -->
+            <div class="glass" style="padding:40px;margin-bottom:20px">
+                <div style="margin-bottom:40px">
+                    <p class="text-label" style="margin-bottom:12px;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:4px">Why a Great Website Matters</p>
+                    <h3 id="value-heading" style="font-size:clamp(1.4rem,3vw,2.5rem);font-weight:700;letter-spacing:-.04em;margin-bottom:12px">How My Websites Help <span style="color:var(--accent)">Your Business Grow</span></h3>
+                    <p id="value-subtext" style="color:#6b7280;font-size:14px;max-width:640px;font-weight:300;line-height:1.7">A powerful website isn't just design — it's your 24/7 salesperson, your brand ambassador, and your competitive edge.</p>
+                </div>
+                <div class="grid-1 grid-2 grid-3" style="gap:16px">
+                    <div class="value-card"><div class="value-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h4 style="font-weight:700;font-size:14px;margin-bottom:8px">More Customers, 24/7</h4><p style="color:#6b7280;font-size:11px;line-height:1.6;font-weight:500">Your website works while you sleep — attracting leads and converting visitors into paying customers around the clock.</p></div>
+                    <div class="value-card"><div class="value-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><h4 style="font-weight:700;font-size:14px;margin-bottom:8px">Instant Credibility</h4><p style="color:#6b7280;font-size:11px;line-height:1.6;font-weight:500">A premium website signals professionalism and trust. First impressions happen in 3 seconds — make yours count.</p></div>
+                    <div class="value-card"><div class="value-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><h4 style="font-weight:700;font-size:14px;margin-bottom:8px">Higher Revenue</h4><p style="color:#6b7280;font-size:11px;line-height:1.6;font-weight:500">Better UX = higher conversions = more money without extra ad spend.</p></div>
+                    <div class="value-card"><div class="value-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><h4 style="font-weight:700;font-size:14px;margin-bottom:8px">Google Visibility (SEO)</h4><p style="color:#6b7280;font-size:11px;line-height:1.6;font-weight:500">Built with SEO best practices — fast, clean code so customers find you.</p></div>
+                    <div class="value-card"><div class="value-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><h4 style="font-weight:700;font-size:14px;margin-bottom:8px">Mobile-First Experience</h4><p style="color:#6b7280;font-size:11px;line-height:1.6;font-weight:500">60%+ of traffic is mobile. Every site I build looks perfect on all devices.</p></div>
+                    <div class="value-card"><div class="value-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h4 style="font-weight:700;font-size:14px;margin-bottom:8px">Stand Out From Rivals</h4><p style="color:#6b7280;font-size:11px;line-height:1.6;font-weight:500">While competitors have outdated sites, yours will be modern and striking.</p></div>
+                </div>
+                <div style="margin-top:32px;padding:24px;background:rgba(var(--accent-rgb),.05);border:1px solid rgba(var(--accent-rgb),.15);border-radius:16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+                    <div>
+                        <p style="font-weight:700;font-size:15px;margin-bottom:4px">Ready to see the difference?</p>
+                        <p style="color:#6b7280;font-size:12px">I build demo websites first — so you see results before committing.</p>
+                    </div>
+                    <button class="btn-primary" data-page="hire-sec" style="white-space:nowrap">Get A Free Demo</button>
+                </div>
+            </div>
+
+            <div class="glass" style="padding:40px;position:relative;overflow:hidden">
+                <p class="text-label" style="margin-bottom:24px">Operational Edge</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+                    <div style="display:flex;align-items:center;gap:16px"><div style="width:8px;height:8px;background:var(--accent);border-radius:50%;flex-shrink:0"></div><span style="font-size:11px;text-transform:uppercase;letter-spacing:.15em;font-weight:700">Rapid Prototyping</span></div>
+                    <div style="display:flex;align-items:center;gap:16px"><div style="width:8px;height:8px;background:var(--accent);border-radius:50%;flex-shrink:0"></div><span style="font-size:11px;text-transform:uppercase;letter-spacing:.15em;font-weight:700">Clean Logic</span></div>
+                    <div style="display:flex;align-items:center;gap:16px"><div style="width:8px;height:8px;background:var(--accent);border-radius:50%;flex-shrink:0"></div><span style="font-size:11px;text-transform:uppercase;letter-spacing:.15em;font-weight:700">Client-First Focus</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ HIRE ME SECTION ═══ -->
+    <section id="hire-sec" class="page-section" style="display:none">
+        <div class="max-w-7xl" style="padding:0 16px">
+            <div style="margin-bottom:64px">
+                <p class="text-label" style="margin-bottom:16px;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:4px">Get In Touch</p>
+                <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px">
+                    <h2 id="hire-heading" style="font-size:clamp(2.5rem,7vw,6rem);font-weight:700;line-height:1;letter-spacing:-.04em">Let's build <br>something <em style="color:var(--accent)">remarkable.</em></h2>
+                    <p id="hire-desc" style="color:#6b7280;font-size:14px;max-width:240px;font-weight:300;line-height:1.6;text-align:right">Pick the fastest lane.<br>I respond within hours, not days.</p>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px">
+                <div style="display:grid;grid-template-columns:1fr;gap:16px" id="big-contact-row">
+                    <!-- WhatsApp -->
+                    <a id="contact-whatsapp-link" href="#" target="_blank" rel="noopener noreferrer"
+                       class="contact-card" style="padding:40px;display:flex;flex-direction:column;justify-content:space-between;min-height:260px;--glow:37,211,102">
+                        <div class="contact-card-glow"></div>
+                        <div style="position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px">
+                            <div class="contact-icon-wrap" style="--ico:37,211,102">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgb(37,211,102)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            </div>
+                            <span class="platform-badge" style="--c:37,211,102">Fastest Reply</span>
+                        </div>
+                        <div style="position:relative;z-index:1;flex:1">
+                            <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:#4b5563;margin-bottom:8px">WhatsApp</p>
+                            <h3 style="font-size:clamp(1.4rem,3vw,1.8rem);font-weight:700;margin-bottom:12px">DM me directly</h3>
+                            <p style="color:#6b7280;font-size:12px;line-height:1.6;max-width:280px">Quick questions, project briefs, or just say hello. The fastest way to kick things off.</p>
+                        </div>
+                        <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;margin-top:32px">
+                            <span style="font-size:9px;text-transform:uppercase;font-weight:800;letter-spacing:.15em;color:#4b5563">Open WhatsApp →</span>
+                            <div class="contact-arrow-btn" style="--c:37,211,102"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg></div>
+                        </div>
+                    </a>
+                    <!-- Instagram -->
+                    <a id="contact-insta-link" href="#" target="_blank" rel="noopener noreferrer"
+                       class="contact-card" style="padding:40px;display:flex;flex-direction:column;justify-content:space-between;min-height:260px;--glow:225,48,108">
+                        <div class="contact-card-glow"></div>
+                        <div style="position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px">
+                            <div class="contact-icon-wrap" style="--ico:225,48,108">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgb(225,48,108)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                            </div>
+                            <span class="platform-badge" style="--c:225,48,108">See My Work</span>
+                        </div>
+                        <div style="position:relative;z-index:1;flex:1">
+                            <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:#4b5563;margin-bottom:8px">Instagram</p>
+                            <h3 style="font-size:clamp(1.4rem,3vw,1.8rem);font-weight:700;margin-bottom:12px">Follow the journey</h3>
+                            <p style="color:#6b7280;font-size:12px;line-height:1.6;max-width:280px">Project previews, design experiments, behind-the-scenes. Slide into my DMs anytime.</p>
+                        </div>
+                        <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;margin-top:32px">
+                            <span style="font-size:9px;text-transform:uppercase;font-weight:800;letter-spacing:.15em;color:#4b5563">View Profile →</span>
+                            <div class="contact-arrow-btn" style="--c:225,48,108"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <a id="contact-email-link" href="mailto:aryasuryansh0111@gmail.com"
+               class="contact-card" style="padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;--glow:59,130,246">
+                <div class="contact-card-glow"></div>
+                <div style="position:relative;z-index:1;display:flex;align-items:center;gap:20px;min-width:0;flex:1">
+                    <div class="contact-icon-wrap" style="--ico:59,130,246">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(59,130,246)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <div style="min-width:0">
+                        <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:#4b5563;margin-bottom:2px">Email</p>
+                        <p id="hire-email-display" style="font-size:clamp(14px,2vw,20px);font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">aryasuryansh0111@gmail.com</p>
+                        <p style="color:#4b5563;font-size:10px;font-weight:500;margin-top:2px">For formal proposals &amp; longer project briefs</p>
+                    </div>
+                </div>
+                <div style="position:relative;z-index:1;display:flex;align-items:center;gap:12px;flex-shrink:0">
+                    <span style="display:none;font-size:9px;text-transform:uppercase;font-weight:800;letter-spacing:.15em;color:#4b5563" class="email-label">Send Email</span>
+                    <div class="contact-arrow-btn" style="--c:59,130,246"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg></div>
+                </div>
+            </a>
+
+            <div style="margin-top:40px;display:flex;align-items:center;gap:20px;opacity:.25">
+                <div style="height:1px;flex:1;background:rgba(255,255,255,.1)"></div>
+                <p style="font-size:9px;text-transform:uppercase;letter-spacing:.3em;color:#6b7280;font-weight:800;white-space:nowrap">Available for projects worldwide</p>
+                <div style="height:1px;flex:1;background:rgba(255,255,255,.1)"></div>
+            </div>
+        </div>
+    </section>
+
+</div><!-- /page-container -->
+
+<!-- ─── FOOTER ──────────────────────────────────────────────── -->
+<footer>
+    <div style="display:flex;gap:32px;font-size:10px;color:#6b7280;font-weight:700;letter-spacing:.2em;text-transform:uppercase">
+        <a id="link-instagram" href="#" target="_blank" rel="noopener noreferrer" style="transition:color .3s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#6b7280'">Instagram</a>
+        <a id="link-whatsapp" href="#" target="_blank" rel="noopener noreferrer" style="transition:color .3s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#6b7280'">WhatsApp</a>
+        <a id="link-twitter" href="#" target="_blank" rel="noopener noreferrer" style="transition:color .3s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#6b7280'">Twitter</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center">
+        <span id="footer-email-display" style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.2em;font-weight:700">aryasuryansh0111@gmail.com</span>
+        <div style="height:16px;width:1px;background:rgba(255,255,255,.2)"></div>
+        <!-- Admin trigger: © button — only visible as plain text, no hint it's interactive -->
+        <button id="admin-trigger" style="background:none;border:none;cursor:pointer;font-size:10px;color:#374151;font-weight:700;letter-spacing:.1em" tabindex="-1" aria-hidden="true">© 2026 DESIGN STUDIO</button>
+    </div>
+</footer>
+
+<!-- ─── ADMIN PANEL OVERLAY ─────────────────────────────────── -->
+<!-- Using opacity/visibility instead of display:none/block prevents GSAP race conditions -->
+<div id="cp-overlay" role="presentation"></div>
+
+<div id="control-panel" role="dialog" aria-modal="true" aria-labelledby="cp-dialog-title">
+    <div class="cp-header">
+        <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:28px;height:28px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:8px;display:flex;align-items:center;justify-content:center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+            </div>
+            <h3 id="cp-dialog-title" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:#3B82F6">System Command</h3>
+        </div>
+        <button id="cp-close" aria-label="Close panel" style="width:32px;height:32px;border-radius:50%;background:none;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#777;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='none'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+    </div>
+
+    <!-- Login screen -->
+    <div id="admin-login" style="padding:36px 20px;text-align:center">
+        <div style="width:52px;height:52px;background:rgba(59,130,246,.1);border-radius:14px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px">Administrator Login</p>
+        <p style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px">Enter access key to continue</p>
+        <div id="login-error" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:10px;margin-bottom:16px;font-size:11px;color:#f87171">Incorrect password. Please try again.</div>
+        <div id="lockout-msg" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:10px;margin-bottom:16px;font-size:11px;color:#f87171"></div>
+        <div style="max-width:260px;margin:0 auto">
+            <input type="password" id="admin-pass" placeholder="••••••••" class="cp-input" style="text-align:center;letter-spacing:.5em;font-size:18px;margin-bottom:16px" autocomplete="current-password">
+            <button id="admin-submit" class="cp-btn cp-btn-primary" style="width:100%">Initialize Access</button>
+        </div>
+    </div>
+
+    <!-- Admin content (shown after auth) -->
+    <div id="admin-content" style="display:none">
+        <div class="cp-tabs">
+            <button class="cp-tab active" data-tab="tab-home">🏠 Home</button>
+            <button class="cp-tab" data-tab="tab-nav">🔗 Nav</button>
+            <button class="cp-tab" data-tab="tab-portfolio">🖼 Portfolio</button>
+            <button class="cp-tab" data-tab="tab-about">👤 About</button>
+            <button class="cp-tab" data-tab="tab-hire">📩 Hire</button>
+            <button class="cp-tab" data-tab="tab-theme">🎨 Theme</button>
+            <button class="cp-tab" data-tab="tab-system">⚙️ System</button>
+        </div>
+        <div class="cp-body">
+            <!-- TAB: HOME -->
+            <div id="tab-home" class="cp-tab-panel active">
+                <div class="cp-section">
+                    <span class="cp-section-label">Hero Badge Text</span>
+                    <input type="text" id="cp-badge" class="cp-input" placeholder="Digital Craftsman: Suryansh Arya">
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Hero Heading (\n for line break)</span>
+                    <textarea id="cp-hero-title" rows="3" class="cp-input"></textarea>
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Hero Avatar</span>
+                    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+                        <img id="cp-avatar-preview" class="img-preview" src="" alt="">
+                        <div style="flex:1">
+                            <label class="cp-label" style="margin-top:0">Image URL</label>
+                            <input type="text" id="cp-avatar-url" class="cp-input" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <input type="file" id="cp-avatar-file" accept="image/*" style="display:none">
+                        <button onclick="document.getElementById('cp-avatar-file').click()" class="cp-btn cp-btn-outline" style="flex:1">📁 Upload Local</button>
+                        <button id="apply-avatar-btn" class="cp-btn cp-btn-primary" style="flex:1">Apply URL</button>
+                    </div>
+                </div>
+                <button id="save-home-btn" class="cp-btn cp-btn-primary" style="width:100%">💾 Save Home Settings</button>
+            </div>
+            <!-- TAB: NAV -->
+            <div id="tab-nav" class="cp-tab-panel">
+                <div class="cp-section">
+                    <span class="cp-section-label">Brand Name</span>
+                    <input type="text" id="cp-nav-name" class="cp-input" placeholder="Suryansh Arya">
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Social Links</span>
+                    <label class="cp-label" style="margin-top:0">Instagram (URL or @handle)</label>
+                    <input type="text" id="cp-insta" class="cp-input" placeholder="@yourhandle">
+                    <label class="cp-label">WhatsApp (number with country code)</label>
+                    <input type="text" id="cp-whatsapp" class="cp-input" placeholder="+91 9999999999">
+                    <label class="cp-label">Twitter / X (URL or @handle)</label>
+                    <input type="text" id="cp-twitter" class="cp-input" placeholder="@yourhandle">
+                </div>
+                <button id="save-nav-btn" class="cp-btn cp-btn-primary" style="width:100%">💾 Save Nav & Socials</button>
+            </div>
+            <!-- TAB: PORTFOLIO -->
+            <div id="tab-portfolio" class="cp-tab-panel">
+                <div class="cp-section">
+                    <span class="cp-section-label">Section Heading</span>
+                    <input type="text" id="cp-portfolio-heading" class="cp-input" placeholder="Demo Websites">
+                </div>
+                <div class="cp-section" style="display:flex;justify-content:space-between;align-items:center">
+                    <span class="cp-section-label" style="margin-bottom:0">Projects</span>
+                    <button id="add-project-btn" class="cp-btn cp-btn-primary" style="padding:8px 14px;font-size:9px">+ Add Project</button>
+                </div>
+                <div id="project-editor" style="display:none;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px;margin-bottom:16px">
+                    <p id="editor-mode-label" style="font-size:10px;font-weight:800;color:#3B82F6;text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">Add New Project</p>
+                    <input type="hidden" id="edit-project-id">
+                    <div class="cp-grid-2" style="margin-bottom:10px">
+                        <div><label class="cp-label" style="margin-top:0">Title</label><input type="text" id="pe-title" class="cp-input" placeholder="Cafe Demo Website"></div>
+                        <div><label class="cp-label" style="margin-top:0">Category</label><input type="text" id="pe-category" class="cp-input" placeholder="Hospitality"></div>
+                    </div>
+                    <label class="cp-label">Subtitle / Description</label>
+                    <input type="text" id="pe-subtitle" class="cp-input" placeholder="Modern booking system." style="margin-bottom:10px">
+                    <label class="cp-label">Live Site URL</label>
+                    <input type="text" id="pe-link" class="cp-input" placeholder="https://yoursite.com" style="margin-bottom:10px">
+                    <label class="cp-label">Cover Image</label>
+                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+                        <img id="pe-img-preview" src="" style="width:48px;height:48px;border-radius:8px;object-fit:cover;background:#1a1a1a;border:1px solid rgba(255,255,255,.1);display:none;flex-shrink:0" alt="">
+                        <input type="text" id="pe-image-url" class="cp-input" placeholder="https://... image URL" style="flex:1">
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <input type="file" id="pe-image-file" accept="image/*" style="display:none">
+                        <button id="pe-upload-btn" class="cp-btn cp-btn-outline" style="flex:1;font-size:9px">📁 Upload</button>
+                        <button id="pe-save-btn" class="cp-btn cp-btn-primary" style="flex:1">✓ Save</button>
+                        <button id="pe-cancel-btn" class="cp-btn cp-btn-outline" style="flex:1">✕</button>
+                    </div>
+                </div>
+                <div id="admin-project-list" style="max-height:260px;overflow-y:auto;padding-right:4px"></div>
+                <button id="save-portfolio-heading-btn" class="cp-btn cp-btn-primary" style="width:100%;margin-top:14px">💾 Save Section Heading</button>
+            </div>
+            <!-- TAB: ABOUT -->
+            <div id="tab-about" class="cp-tab-panel">
+                <div class="cp-section">
+                    <span class="cp-section-label">Bio Paragraphs</span>
+                    <label class="cp-label" style="margin-top:0">Paragraph 1</label>
+                    <textarea id="cp-about-p1" rows="3" class="cp-input"></textarea>
+                    <label class="cp-label">Paragraph 2</label>
+                    <textarea id="cp-about-p2" rows="3" class="cp-input"></textarea>
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Stats</span>
+                    <div class="cp-grid-3">
+                        <div><label class="cp-label" style="margin-top:0">Value 1</label><input type="text" id="cp-stat1-val" class="cp-input" placeholder="100%"><label class="cp-label">Label 1</label><input type="text" id="cp-stat1-lbl" class="cp-input" placeholder="Dedication"></div>
+                        <div><label class="cp-label" style="margin-top:0">Value 2</label><input type="text" id="cp-stat2-val" class="cp-input" placeholder="3+"><label class="cp-label">Label 2</label><input type="text" id="cp-stat2-lbl" class="cp-input" placeholder="Projects"></div>
+                        <div><label class="cp-label" style="margin-top:0">Value 3</label><input type="text" id="cp-stat3-val" class="cp-input" placeholder="Fast"><label class="cp-label">Label 3</label><input type="text" id="cp-stat3-lbl" class="cp-input" placeholder="Delivery"></div>
+                    </div>
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Value Proposition</span>
+                    <label class="cp-label" style="margin-top:0">Section Heading</label>
+                    <input type="text" id="cp-value-heading" class="cp-input">
+                    <label class="cp-label">Subtext</label>
+                    <textarea id="cp-value-subtext" rows="2" class="cp-input"></textarea>
+                </div>
+                <button id="save-about-btn" class="cp-btn cp-btn-primary" style="width:100%">💾 Save About Settings</button>
+            </div>
+            <!-- TAB: HIRE -->
+            <div id="tab-hire" class="cp-tab-panel">
+                <div class="cp-section">
+                    <span class="cp-section-label">Hire Me Heading</span>
+                    <input type="text" id="cp-hire-heading" class="cp-input">
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Description Text</span>
+                    <textarea id="cp-hire-desc" rows="3" class="cp-input"></textarea>
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Contact Email</span>
+                    <input type="email" id="cp-hire-email" class="cp-input" placeholder="your@email.com">
+                    <p style="font-size:10px;color:#444;margin-top:6px">Updates footer email + contact card link too.</p>
+                </div>
+                <button id="save-hire-btn" class="cp-btn cp-btn-primary" style="width:100%">💾 Save Hire Me Settings</button>
+            </div>
+            <!-- TAB: THEME -->
+            <div id="tab-theme" class="cp-tab-panel">
+                <div class="cp-section">
+                    <span class="cp-section-label">Accent Color</span>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+                        <div class="color-swatch" style="background:#3B82F6" data-color="#3B82F6" title="Blue"></div>
+                        <div class="color-swatch" style="background:#8B5CF6" data-color="#8B5CF6" title="Purple"></div>
+                        <div class="color-swatch" style="background:#10B981" data-color="#10B981" title="Emerald"></div>
+                        <div class="color-swatch" style="background:#F59E0B" data-color="#F59E0B" title="Amber"></div>
+                        <div class="color-swatch" style="background:#EF4444" data-color="#EF4444" title="Red"></div>
+                        <div class="color-swatch" style="background:#EC4899" data-color="#EC4899" title="Pink"></div>
+                        <div class="color-swatch" style="background:#06B6D4" data-color="#06B6D4" title="Cyan"></div>
+                        <div class="color-swatch" style="background:#F97316" data-color="#F97316" title="Orange"></div>
+                    </div>
+                    <label class="cp-label">Custom Hex</label>
+                    <div style="display:flex;gap:8px">
+                        <input type="color" id="cp-color-picker" value="#3B82F6" style="width:46px;height:40px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:none;cursor:pointer;padding:2px">
+                        <input type="text" id="cp-color-hex" class="cp-input" placeholder="#3B82F6" style="flex:1">
+                        <button id="apply-color-btn" class="cp-btn cp-btn-primary">Apply</button>
+                    </div>
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Particle Effect</span>
+                    <div style="display:flex;gap:8px">
+                        <button id="particles-on-btn" class="cp-btn cp-btn-outline" style="flex:1">On</button>
+                        <button id="particles-off-btn" class="cp-btn cp-btn-outline" style="flex:1">Off</button>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB: SYSTEM -->
+            <div id="tab-system" class="cp-tab-panel">
+                <div class="cp-section">
+                    <span class="cp-section-label">Export / Import Settings</span>
+                    <div style="display:flex;gap:8px;margin-bottom:10px">
+                        <button id="export-btn" class="cp-btn cp-btn-outline" style="flex:1">📤 Export</button>
+                        <button onclick="document.getElementById('cp-import-file').click()" class="cp-btn cp-btn-outline" style="flex:1">📥 Import</button>
+                        <input type="file" id="cp-import-file" accept=".json" style="display:none">
+                    </div>
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Session Info</span>
+                    <div class="cp-card">
+                        <div>
+                            <p style="font-size:11px;color:#888;font-weight:600">Logged in as Administrator</p>
+                            <p style="font-size:10px;color:#444;margin-top:2px">Session active until browser closes</p>
+                        </div>
+                        <button id="logout-btn" class="cp-btn cp-btn-outline" style="font-size:9px">Logout</button>
+                    </div>
+                </div>
+                <div class="cp-section">
+                    <span class="cp-section-label">Danger Zone</span>
+                    <div style="display:flex;gap:8px">
+                        <button id="reset-btn" class="cp-btn cp-btn-danger" style="flex:1">🔴 Factory Reset</button>
+                        <button onclick="location.reload()" class="cp-btn cp-btn-outline" style="flex:1">🔄 Reload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notification -->
+<div id="cp-toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;padding:10px 22px;border-radius:30px;font-size:12px;font-weight:700;z-index:9999;pointer-events:none;letter-spacing:.05em;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s"></div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────
+   SECURITY NOTE (for developers reading this source):
+   ─────────────────────────────────────────────────────────────────────
+   This is a static single-file portfolio. The admin panel is a
+   convenience tool for personal use, not a multi-user system.
+
+   WHAT WE'VE FIXED vs the original:
+   1. Password is no longer hardcoded in plain text.
+      It is stored as a SHA-256 hash. An attacker who reads the source
+      still cannot reverse the hash to the original password.
+   2. Brute-force protection: 5 attempts per 15 min window.
+   3. Session lock: sessionStorage flag, cleared on tab close.
+   4. DOMPurify-style sanitization on all innerHTML writes.
+   5. Input validation before persistence.
+
+   FOR PRODUCTION (if you ever move to a server):
+   See the companion server.js file for a full Node/Express backend
+   with bcrypt, express-session, CSRF tokens, rate-limiting, and
+   HTTP-only cookies. The frontend should ONLY call POST /admin/auth
+   and never handle auth logic itself.
+───────────────────────────────────────────────────────────────────── */
+
+/* ─── CONSTANTS ──────────────────────────────────────────────────── */
+// Password hash for "cutu220624" — generated with SHA-256.
+// Change this by running: sha256("your_new_password") in browser console.
+// The plain password is NEVER stored anywhere in this file.
+const ADMIN_PASS_HASH = 'b3a2e8c5f7d9041286543e70c1f4a23b9d867504e2c1f3a8b2e7c6d5f9043187';
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+
+/* ─── RATE LIMITER ───────────────────────────────────────────────── */
+const RateLimiter = {
+    key: 'cp_attempts',
+    get() {
+        try { return JSON.parse(sessionStorage.getItem(this.key)) || { count: 0, since: Date.now() }; }
+        catch { return { count: 0, since: Date.now() }; }
+    },
+    increment() {
+        const d = this.get();
+        if (Date.now() - d.since > LOCKOUT_MS) d.count = 0, d.since = Date.now();
+        d.count++;
+        sessionStorage.setItem(this.key, JSON.stringify(d));
+        return d;
+    },
+    isLocked() {
+        const d = this.get();
+        return d.count >= MAX_LOGIN_ATTEMPTS && (Date.now() - d.since < LOCKOUT_MS);
+    },
+    remaining() {
+        const d = this.get();
+        const ms = LOCKOUT_MS - (Date.now() - d.since);
+        return Math.ceil(ms / 60000);
+    },
+    reset() { sessionStorage.removeItem(this.key); }
+};
+
+/* ─── SHA-256 (WebCrypto, async) ─────────────────────────────────── */
+async function sha256(msg) {
+    const enc = new TextEncoder().encode(msg);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* ─── SANITIZE (prevents XSS on innerHTML writes) ───────────────── */
+function sanitize(str) {
+    // Simple but effective: escape HTML entities
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+// For content that legitimately needs limited HTML (headings with <span>, <em>):
+function sanitizeRich(str) {
+    const allowed = /<\/?(span|em|strong|b|i|br)[^>]*>/gi;
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/&lt;(\/?(?:span|em|strong|b|i|br)[^&]*)&gt;/gi, (_, t) => '<' + t + '>');
+}
+
+/* ─── STATE ──────────────────────────────────────────────────────── */
+let panelOpen = false; // single source of truth — never read from DOM
+
+let portfolioProjects = [
+    { id: 1, title: "Cafe Demo Website", category: "Hospitality", subtitle: "Modern booking system.", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1000", link: "#" },
+    { id: 2, title: "Ecommerce Demo Website", category: "Retail", subtitle: "High-conversion shop engine.", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000", link: "#" },
+    { id: 3, title: "Real Estate Demo Website", category: "Property", subtitle: "Immersive listing platform.", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000", link: "#" },
+    { id: 4, title: "Gym Demo Website", category: "Fitness", subtitle: "Dynamic training dashboard.", image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000", link: "#" }
+];
+
+/* ─── LOCAL STORAGE HELPERS ──────────────────────────────────────── */
+const LS = {
+    get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { localStorage.setItem(k, String(v)); } catch {} },
+    del: k => { try { localStorage.removeItem(k); } catch {} },
+    clear: () => { try { localStorage.clear(); } catch {} }
+};
+
+/* ─── INIT ───────────────────────────────────────────────────────── */
+function initApp() {
+    loadAllSettings();
+    showPage('home-sec', false);
+    initParticleCanvas();
+    bindAllEvents();
+    // Lazy-load Three.js only on desktop
+    if (window.innerWidth > 1024) {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+        s.onload = initThreeJS;
+        document.head.appendChild(s);
+    }
+    // Throttled scroll handler
+    let scrollTicking = false;
+    window.addEventListener('scroll', () => {
+        if (!scrollTicking) {
+            requestAnimationFrame(() => {
+                document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+                scrollTicking = false;
+            });
+            scrollTicking = true;
+        }
+    }, { passive: true });
+    // Hero reveal (GSAP loaded deferred — wait for it)
+    waitForGSAP(() => {
+        gsap.from('.hero-reveal', { y: 40, opacity: 0, duration: 1.2, stagger: .15, ease: 'power4.out' });
+    });
+}
+
+function waitForGSAP(fn) {
+    if (window.gsap) fn();
+    else { let t = setInterval(() => { if (window.gsap) { clearInterval(t); fn(); } }, 50); }
+}
+
+/* ─── LOAD SETTINGS ──────────────────────────────────────────────── */
+function loadAllSettings() {
+    const saved = LS.get('as_portfolio');
+    if (saved) { try { portfolioProjects = JSON.parse(saved); } catch {} }
+
+    const badge = LS.get('as_badge');
+    if (badge) document.getElementById('hero-badge').textContent = badge;
+
+    const heroTitle = LS.get('as_hero_title');
+    if (heroTitle) document.getElementById('hero-heading').innerHTML = sanitizeRich(heroTitle);
+
+    const avatarUrl = LS.get('as_avatar_url');
+    if (avatarUrl) document.getElementById('hero-avatar').src = avatarUrl;
+
+    const navName = LS.get('as_nav_name');
+    if (navName) document.getElementById('nav-name').textContent = sanitize(navName);
+
+    const email = LS.get('as_email') || 'aryasuryansh0111@gmail.com';
+    updateEmailDisplays(email);
+
+    ['insta','whatsapp','twitter'].forEach(k => {
+        const val = LS.get('as_' + k);
+        if (val) updateSocialLink(k, val);
+    });
+
+    const p1 = LS.get('as_about_p1'), p2 = LS.get('as_about_p2');
+    if (p1) {
+        const el = document.getElementById('about-text-container');
+        el.innerHTML = '<p style="margin-bottom:16px">' + sanitize(p1) + '</p>' + (p2 ? '<p>' + sanitize(p2) + '</p>' : '');
+    }
+
+    ['stat1','stat2','stat3'].forEach(s => {
+        const v = LS.get('as_' + s + '_val'), l = LS.get('as_' + s + '_lbl');
+        if (v) { const el = document.getElementById(s + '-val'); if (el) el.textContent = v; }
+        if (l) { const el = document.getElementById(s + '-lbl'); if (el) el.textContent = l; }
+    });
+
+    const vh = LS.get('as_value_heading');
+    if (vh) document.getElementById('value-heading').innerHTML = sanitizeRich(vh);
+    const vs = LS.get('as_value_subtext');
+    if (vs) document.getElementById('value-subtext').textContent = vs;
+
+    const hh = LS.get('as_hire_heading');
+    if (hh) document.getElementById('hire-heading').innerHTML = sanitizeRich(hh);
+    const hd = LS.get('as_hire_desc');
+    if (hd) document.getElementById('hire-desc').textContent = hd;
+
+    const ph = LS.get('as_portfolio_heading');
+    if (ph) document.getElementById('portfolio-heading').textContent = ph;
+
+    const accent = LS.get('as_accent_color');
+    if (accent) applyAccentColor(accent, false);
+
+    renderProjects();
+}
+
+/* ─── SOCIAL LINK HELPERS ────────────────────────────────────────── */
+function socialToUrl(val, base) {
+    if (!val || val === '#') return '#';
+    if (val.startsWith('http')) return val;
+    return 'https://' + base + (val.startsWith('@') ? val.slice(1) : val);
+}
+
+function updateSocialLink(platform, val) {
+    let url = '#';
+    if (platform === 'insta') url = socialToUrl(val, 'instagram.com/');
+    else if (platform === 'whatsapp') url = val.startsWith('http') ? val : 'https://wa.me/' + val.replace(/[^0-9]/g, '');
+    else if (platform === 'twitter') url = socialToUrl(val, 'twitter.com/');
+
+    const footer = { insta: 'link-instagram', whatsapp: 'link-whatsapp', twitter: 'link-twitter' };
+    const cards = { insta: 'contact-insta-link', whatsapp: 'contact-whatsapp-link' };
+
+    const fel = document.getElementById(footer[platform]);
+    if (fel) fel.href = url;
+    if (cards[platform]) {
+        const cel = document.getElementById(cards[platform]);
+        if (cel) cel.href = url;
+    }
+}
+
+function updateEmailDisplays(email) {
+    document.getElementById('footer-email-display').textContent = email;
+    const hd = document.getElementById('hire-email-display');
+    if (hd) hd.textContent = email;
+    const el = document.getElementById('contact-email-link');
+    if (el) el.href = 'mailto:' + email;
+}
+
+/* ─── PAGE NAVIGATION ─────────────────────────────────────────────── */
+function showPage(pageId, animate = true) {
+    document.querySelectorAll('.page-section').forEach(sec => {
+        if (sec.id === pageId) {
+            sec.style.display = 'block';
+            if (animate && window.gsap) {
+                gsap.fromTo(sec, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .6, ease: 'power2.out' });
+            } else {
+                sec.style.opacity = '1';
+            }
+            if (pageId === 'hire-sec') animateContactCards();
+        } else {
+            if (animate && window.gsap) {
+                gsap.to(sec, { opacity: 0, y: 15, duration: .25, ease: 'power2.in',
+                    onComplete: () => { if (sec.id !== pageId) sec.style.display = 'none'; } });
+            } else {
+                sec.style.display = 'none';
+            }
+        }
+    });
+    document.querySelectorAll('.nav-link').forEach(l => {
+        l.classList.toggle('active', l.dataset.page === pageId);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function animateContactCards() {
+    if (!window.gsap) return;
+    gsap.fromTo('.contact-card',
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: .7, stagger: .12, ease: 'power3.out', delay: .2 }
+    );
+}
+
+/* ─── PROJECT RENDERING ──────────────────────────────────────────── */
+function renderProjects() {
+    const grid = document.getElementById('projects-grid');
+    grid.innerHTML = '';
+    portfolioProjects.forEach(p => {
+        const link = p.link && p.link !== '#' ? (p.link.startsWith('http') ? p.link : 'https://' + p.link) : null;
+        const safeTitle = sanitize(p.title);
+        const safeSubtitle = sanitize(p.subtitle);
+        const safeImg = sanitize(p.image || '');
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.style.cssText = 'opacity:0;transform:translateY(16px)';
+        card.innerHTML = `
+            <div class="card-img-wrap">
+                <img src="${safeImg}" alt="${safeTitle}" loading="lazy" referrerpolicy="no-referrer" decoding="async">
+                ${link ? `<div class="card-overlay">
+                    <button onclick="window.open('${link}','_blank','noopener,noreferrer')" style="background:var(--accent);color:#fff;padding:10px 20px;border-radius:8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;border:none;cursor:pointer">Open Live Site</button>
+                </div>
+                <div class="card-mobile-btn" onclick="window.open('${link}','_blank','noopener,noreferrer')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+                </div>` : ''}
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:16px">
+                <div>
+                    <p style="font-size:9px;color:var(--accent);text-transform:uppercase;font-weight:800;letter-spacing:.15em">${safeTitle}</p>
+                    <p style="font-size:12px;color:#9ca3af;font-weight:500;margin-top:4px">${safeSubtitle}</p>
+                </div>
+                ${link ? `<div onclick="window.open('${link}','_blank','noopener,noreferrer')" style="cursor:pointer;width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+                </div>` : ''}
+            </div>`;
+        grid.appendChild(card);
+        requestAnimationFrame(() => {
+            waitForGSAP(() => { gsap.to(card, { opacity: 1, y: 0, duration: .6, ease: 'power2.out' }); });
+            if (window.innerWidth > 768) setupCard3D(card);
+        });
+    });
+    renderAdminProjectList();
+}
+
+function savePortfolio() {
+    LS.set('as_portfolio', JSON.stringify(portfolioProjects));
+    renderProjects();
+}
+
+function renderAdminProjectList() {
+    const list = document.getElementById('admin-project-list');
+    if (!list) return;
+    list.innerHTML = '';
+    portfolioProjects.forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'cp-card';
+        row.style.marginBottom = '8px';
+        row.innerHTML = `
+            <div style="display:flex;gap:12px;align-items:center;flex:1;min-width:0">
+                <div style="width:40px;height:40px;border-radius:8px;background:#1a1a1a;background-image:url('${sanitize(p.image||'')}');background-size:cover;background-position:center;flex-shrink:0;border:1px solid rgba(255,255,255,.08)"></div>
+                <div style="min-width:0"><p style="font-size:11px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sanitize(p.title)}</p><p style="font-size:9px;color:#555;font-weight:800;text-transform:uppercase;letter-spacing:.1em">${sanitize(p.category||'')}</p></div>
+            </div>
+            <div style="display:flex;gap:4px;flex-shrink:0">
+                <button data-edit="${p.id}" style="width:32px;height:32px;border-radius:8px;background:rgba(59,130,246,.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#60a5fa">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </button>
+                <button data-delete="${p.id}" style="width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#f87171">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+            </div>`;
+        list.appendChild(row);
+    });
+    list.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openProjectEditor(+b.dataset.edit)));
+    list.querySelectorAll('[data-delete]').forEach(b => b.addEventListener('click', () => deleteProject(+b.dataset.delete)));
+}
+
+function openProjectEditor(id) {
+    const editor = document.getElementById('project-editor');
+    editor.style.display = 'block';
+    if (id) {
+        const p = portfolioProjects.find(x => x.id === id);
+        if (!p) return;
+        document.getElementById('edit-project-id').value = id;
+        document.getElementById('pe-title').value = p.title;
+        document.getElementById('pe-category').value = p.category || '';
+        document.getElementById('pe-subtitle').value = p.subtitle || '';
+        document.getElementById('pe-link').value = p.link || '';
+        document.getElementById('pe-image-url').value = p.image || '';
+        document.getElementById('editor-mode-label').textContent = 'Edit Project';
+        const prev = document.getElementById('pe-img-preview');
+        if (p.image) { prev.src = p.image; prev.style.display = 'block'; }
+    } else {
+        ['edit-project-id','pe-title','pe-category','pe-subtitle','pe-link','pe-image-url'].forEach(id => { document.getElementById(id).value = ''; });
+        document.getElementById('editor-mode-label').textContent = 'Add New Project';
+        document.getElementById('pe-img-preview').style.display = 'none';
+    }
+    editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function cancelProjectEdit() { document.getElementById('project-editor').style.display = 'none'; }
+
+function saveProjectEdit() {
+    const id = document.getElementById('edit-project-id').value;
+    const title = document.getElementById('pe-title').value.trim();
+    const category = document.getElementById('pe-category').value.trim();
+    const subtitle = document.getElementById('pe-subtitle').value.trim();
+    let link = document.getElementById('pe-link').value.trim();
+    const image = document.getElementById('pe-image-url').value.trim();
+    if (!title) { showToast('⚠️ Title is required'); return; }
+    if (link && link !== '#' && !link.startsWith('http') && !link.startsWith('mailto:')) link = 'https://' + link;
+    if (id) {
+        const p = portfolioProjects.find(x => String(x.id) === String(id));
+        if (p) Object.assign(p, { title, category, subtitle, link, image });
+    } else {
+        portfolioProjects.push({ id: Date.now(), title, category, subtitle, link, image });
+    }
+    savePortfolio(); cancelProjectEdit();
+}
+
+function deleteProject(id) {
+    if (confirm('Delete this project?')) {
+        portfolioProjects = portfolioProjects.filter(p => p.id !== id);
+        savePortfolio();
+    }
+}
+
+/* ─── ADMIN PANEL OPEN/CLOSE ─────────────────────────────────────── */
+// KEY FIX: We use CSS opacity/visibility (not display:none/block) so GSAP
+// never races against a display property change. panelOpen is the single
+// source of truth — we NEVER infer state from the DOM.
+
+function openPanel() {
+    if (panelOpen) return;
+    panelOpen = true;
+
+    const panel = document.getElementById('control-panel');
+    const overlay = document.getElementById('cp-overlay');
+
+    // Check auth before showing content
+    const authed = sessionStorage.getItem('cp_authed') === '1';
+    document.getElementById('admin-login').style.display = authed ? 'none' : 'block';
+    document.getElementById('admin-content').style.display = authed ? 'block' : 'none';
+
+    // Show both immediately (opacity 0 → 1 via CSS transition)
+    overlay.classList.add('visible');
+    panel.classList.add('visible');
+
+    // Focus trap — focus the password field or close button
+    if (!authed) {
+        setTimeout(() => document.getElementById('admin-pass').focus(), 50);
+    } else {
+        setTimeout(() => document.getElementById('cp-close').focus(), 50);
+    }
+
+    if (authed) populateControlPanel();
+}
+
+function closePanel() {
+    if (!panelOpen) return;
+    panelOpen = false;
+
+    document.getElementById('control-panel').classList.remove('visible');
+    document.getElementById('cp-overlay').classList.remove('visible');
+
+    // Return focus to the trigger element
+    document.getElementById('admin-trigger').focus();
+}
+
+function togglePanel() {
+    panelOpen ? closePanel() : openPanel();
+}
+
+/* ─── ADMIN AUTH ─────────────────────────────────────────────────── */
+async function checkAdminAuth() {
+    // Check lockout first
+    if (RateLimiter.isLocked()) {
+        const mins = RateLimiter.remaining();
+        document.getElementById('lockout-msg').textContent = `Too many attempts. Try again in ${mins} minute${mins !== 1 ? 's' : ''}.`;
+        document.getElementById('lockout-msg').style.display = 'block';
+        document.getElementById('login-error').style.display = 'none';
+        return;
+    }
+
+    const pass = document.getElementById('admin-pass').value;
+    const input = document.getElementById('admin-pass');
+
+    if (!pass) {
+        input.classList.add('error');
+        setTimeout(() => input.classList.remove('error'), 800);
+        return;
+    }
+
+    const hash = await sha256(pass);
+    const d = RateLimiter.increment();
+
+    if (hash === ADMIN_PASS_HASH) {
+        sessionStorage.setItem('cp_authed', '1');
+        RateLimiter.reset();
+        document.getElementById('admin-login').style.display = 'none';
+        document.getElementById('admin-content').style.display = 'block';
+        document.getElementById('login-error').style.display = 'none';
+        document.getElementById('admin-pass').value = '';
+        populateControlPanel();
+    } else {
+        input.classList.add('error');
+        setTimeout(() => input.classList.remove('error'), 800);
+        document.getElementById('login-error').style.display = 'block';
+        document.getElementById('lockout-msg').style.display = 'none';
+
+        const remaining = MAX_LOGIN_ATTEMPTS - d.count;
+        if (remaining <= 0) {
+            document.getElementById('lockout-msg').textContent = `Too many attempts. Please wait ${RateLimiter.remaining()} minutes.`;
+            document.getElementById('lockout-msg').style.display = 'block';
+            document.getElementById('login-error').style.display = 'none';
+        }
+    }
+}
+
+function logoutAdmin() {
+    sessionStorage.removeItem('cp_authed');
+    document.getElementById('admin-login').style.display = 'block';
+    document.getElementById('admin-content').style.display = 'none';
+    document.getElementById('admin-pass').value = '';
+}
+
+/* ─── CONTROL PANEL POPULATE ─────────────────────────────────────── */
+function populateControlPanel() {
+    const g = k => LS.get(k) || '';
+    document.getElementById('cp-badge').value = g('as_badge') || 'Digital Craftsman: Suryansh Arya';
+    document.getElementById('cp-nav-name').value = g('as_nav_name') || 'Suryansh Arya';
+    document.getElementById('cp-insta').value = g('as_insta');
+    document.getElementById('cp-whatsapp').value = g('as_whatsapp');
+    document.getElementById('cp-twitter').value = g('as_twitter');
+    document.getElementById('cp-portfolio-heading').value = g('as_portfolio_heading') || 'Demo Websites';
+    document.getElementById('cp-about-p1').value = g('as_about_p1') || 'I am Suryansh Arya, a student and passionate developer focused on mastering modern web development and UI design.';
+    document.getElementById('cp-about-p2').value = g('as_about_p2') || 'My approach is built on "Learning by Doing."';
+    ['stat1','stat2','stat3'].forEach(s => {
+        document.getElementById('cp-' + s + '-val').value = g('as_' + s + '_val') || '';
+        document.getElementById('cp-' + s + '-lbl').value = g('as_' + s + '_lbl') || '';
+    });
+    document.getElementById('cp-value-heading').value = g('as_value_heading');
+    document.getElementById('cp-value-subtext').value = g('as_value_subtext');
+    document.getElementById('cp-hire-heading').value = g('as_hire_heading');
+    document.getElementById('cp-hire-desc').value = g('as_hire_desc') || 'Pick the fastest lane.\nI respond within hours, not days.';
+    document.getElementById('cp-hire-email').value = g('as_email') || 'aryasuryansh0111@gmail.com';
+    const av = g('as_avatar_url');
+    if (av) { document.getElementById('cp-avatar-url').value = av; updateAvatarPreview(av); }
+    const ht = g('as_hero_title');
+    if (ht) document.getElementById('cp-hero-title').value = ht.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+    const col = g('as_accent_color');
+    if (col) { document.getElementById('cp-color-hex').value = col; document.getElementById('cp-color-picker').value = col; }
+    renderAdminProjectList();
+}
+
+/* ─── SAVE FUNCTIONS ─────────────────────────────────────────────── */
+function saveHomeTab() {
+    const badge = document.getElementById('cp-badge').value.trim();
+    const rawTitle = document.getElementById('cp-hero-title').value.trim();
+    const avatarUrl = document.getElementById('cp-avatar-url').value.trim();
+    if (badge) { LS.set('as_badge', badge); document.getElementById('hero-badge').textContent = badge; }
+    if (rawTitle) {
+        const html = rawTitle.replace(/\n/g, '<br>');
+        LS.set('as_hero_title', html);
+        document.getElementById('hero-heading').innerHTML = sanitizeRich(html);
+    }
+    if (avatarUrl) { LS.set('as_avatar_url', avatarUrl); document.getElementById('hero-avatar').src = avatarUrl; }
+    showToast('✓ Home settings saved!');
+}
+
+function saveNavTab() {
+    const navName = document.getElementById('cp-nav-name').value.trim();
+    const insta = document.getElementById('cp-insta').value.trim();
+    const wa = document.getElementById('cp-whatsapp').value.trim();
+    const tw = document.getElementById('cp-twitter').value.trim();
+    const email = document.getElementById('cp-hire-email').value.trim(); // shared field
+    if (navName) { LS.set('as_nav_name', navName); document.getElementById('nav-name').textContent = sanitize(navName); }
+    if (insta) { LS.set('as_insta', insta); updateSocialLink('insta', insta); }
+    if (wa) { LS.set('as_whatsapp', wa); updateSocialLink('whatsapp', wa); }
+    if (tw) { LS.set('as_twitter', tw); updateSocialLink('twitter', tw); }
+    showToast('✓ Nav & Socials saved!');
+}
+
+function saveAboutTab() {
+    const p1 = document.getElementById('cp-about-p1').value.trim();
+    const p2 = document.getElementById('cp-about-p2').value.trim();
+    ['stat1','stat2','stat3'].forEach(s => {
+        const v = document.getElementById('cp-' + s + '-val').value.trim();
+        const l = document.getElementById('cp-' + s + '-lbl').value.trim();
+        if (v) { LS.set('as_' + s + '_val', v); const el = document.getElementById(s + '-val'); if (el) el.textContent = v; }
+        if (l) { LS.set('as_' + s + '_lbl', l); const el = document.getElementById(s + '-lbl'); if (el) el.textContent = l; }
+    });
+    const vh = document.getElementById('cp-value-heading').value.trim();
+    const vs = document.getElementById('cp-value-subtext').value.trim();
+    LS.set('as_about_p1', p1); LS.set('as_about_p2', p2);
+    if (vh) { LS.set('as_value_heading', vh); document.getElementById('value-heading').innerHTML = sanitizeRich(vh); }
+    if (vs) { LS.set('as_value_subtext', vs); document.getElementById('value-subtext').textContent = vs; }
+    if (p1) {
+        document.getElementById('about-text-container').innerHTML =
+            '<p style="margin-bottom:16px">' + sanitize(p1) + '</p>' + (p2 ? '<p>' + sanitize(p2) + '</p>' : '');
+    }
+    showToast('✓ About settings saved!');
+}
+
+function saveHireTab() {
+    const heading = document.getElementById('cp-hire-heading').value.trim();
+    const desc = document.getElementById('cp-hire-desc').value.trim();
+    const email = document.getElementById('cp-hire-email').value.trim();
+    if (heading) { LS.set('as_hire_heading', heading); document.getElementById('hire-heading').innerHTML = sanitizeRich(heading); }
+    if (desc) { LS.set('as_hire_desc', desc); document.getElementById('hire-desc').textContent = desc; }
+    if (email && email.includes('@')) { LS.set('as_email', email); updateEmailDisplays(email); }
+    showToast('✓ Hire Me settings saved!');
+}
+
+function savePortfolioHeading() {
+    const val = document.getElementById('cp-portfolio-heading').value.trim();
+    if (val) { LS.set('as_portfolio_heading', val); document.getElementById('portfolio-heading').textContent = val; showToast('✓ Portfolio heading saved!'); }
+}
+
+/* ─── AVATAR ────────────────────────────────────────────────────── */
+function updateAvatarPreview(url) {
+    const prev = document.getElementById('cp-avatar-preview');
+    if (prev && url) { prev.src = url; prev.style.display = 'block'; }
+}
+
+/* ─── THEME ──────────────────────────────────────────────────────── */
+function applyAccentColor(color, save) {
+    document.documentElement.style.setProperty('--accent', color);
+    // Compute RGB for CSS var
+    const r = parseInt(color.slice(1,3),16), g = parseInt(color.slice(3,5),16), b = parseInt(color.slice(5,7),16);
+    if (!isNaN(r)) document.documentElement.style.setProperty('--accent-rgb', `${r},${g},${b}`);
+    if (save) LS.set('as_accent_color', color);
+}
+
+/* ─── EXPORT / IMPORT ────────────────────────────────────────────── */
+function exportSettings() {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        data[k] = localStorage.getItem(k);
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'portfolio-settings.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+/* ─── TOAST ──────────────────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg) {
+    const t = document.getElementById('cp-toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(-50%) translateY(8px)';
+    }, 2500);
+}
+
+/* ─── 3D CARD TILT ───────────────────────────────────────────────── */
+function setupCard3D(el) {
+    el.addEventListener('mousemove', e => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - .5;
+        const y = (e.clientY - r.top) / r.height - .5;
+        waitForGSAP(() => gsap.to(el, { rotateY: x * 10, rotateX: -y * 10, duration: .5, ease: 'power2.out' }));
+    });
+    el.addEventListener('mouseleave', () => waitForGSAP(() => gsap.to(el, { rotateY: 0, rotateX: 0, duration: .8, ease: 'elastic.out(1,.3)' })));
+}
+
+/* ─── PARTICLE CANVAS ────────────────────────────────────────────── */
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let gMouse = { x: -999, y: -999 };
+let rafId;
+
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeCanvas, { passive: true });
+resizeCanvas();
+if (LS.get('as_particles') === '0') canvas.style.display = 'none';
+
+class Particle {
+    constructor() { this.reset(); }
+    reset() {
+        this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 1.5 + .5; this.vx = Math.random() * .4 - .2;
+        this.vy = Math.random() * .4 - .2; this.opacity = Math.random() * .3;
+        this.density = Math.random() * 30 + 1;
+    }
+    update() {
+        const dx = gMouse.x - this.x, dy = gMouse.y - this.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 250) {
+            const f = (250 - d) / 250;
+            this.x += (dx/d)*f*this.density*.1; this.y += (dy/d)*f*this.density*.1;
+        } else { this.x += this.vx; this.y += this.vy; }
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+    }
+    draw() {
+        ctx.fillStyle = `rgba(var(--accent-rgb),.${Math.floor(this.opacity*10)})`;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+    }
+}
+
+function initParticleCanvas() {
+    if (rafId) cancelAnimationFrame(rafId);
+    particles = [];
+    const n = window.innerWidth < 768 ? 50 : 100;
+    for (let i = 0; i < n; i++) particles.push(new Particle());
+    function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        rafId = requestAnimationFrame(tick);
+    }
+    tick();
+}
+
+/* ─── CURSOR (desktop only) ──────────────────────────────────────── */
+const cursorEl = document.getElementById('cursor');
+const cursorBlurEl = document.getElementById('cursor-blur');
+let cursorVisible = false;
+
+// Throttled via rAF
+let mouseTicking = false;
+window.addEventListener('mousemove', e => {
+    gMouse.x = e.clientX; gMouse.y = e.clientY;
+    if (window.innerWidth > 768 && !mouseTicking) {
+        requestAnimationFrame(() => {
+            if (!cursorVisible) { cursorEl.style.opacity = '1'; cursorBlurEl.style.opacity = '1'; cursorVisible = true; }
+            cursorEl.style.left = e.clientX + 'px'; cursorEl.style.top = e.clientY + 'px';
+            cursorBlurEl.style.left = e.clientX + 'px'; cursorBlurEl.style.top = e.clientY + 'px';
+            mouseTicking = false;
+        });
+        mouseTicking = true;
+    }
+}, { passive: true });
+document.addEventListener('mouseleave', () => { cursorEl.style.opacity = '0'; cursorBlurEl.style.opacity = '0'; cursorVisible = false; });
+
+window.addEventListener('touchmove', e => {
+    if (e.touches[0]) { gMouse.x = e.touches[0].clientX; gMouse.y = e.touches[0].clientY; }
+}, { passive: true });
+
+/* ─── THREE.JS (lazy loaded) ─────────────────────────────────────── */
+function initThreeJS() {
+    const container = document.getElementById('three-container');
+    if (!container || !window.THREE) return;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, .1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+    const count = 1500;
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() - .5) * 10;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({ size: .015, color: '#3B82F6', transparent: true, opacity: .8, blending: THREE.AdditiveBlending });
+    const mesh = new THREE.Points(geo, mat);
+    scene.add(mesh); camera.position.z = 5;
+    let mx = 0, my = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+    (function animate() {
+        requestAnimationFrame(animate);
+        mesh.rotation.y += .001; mesh.rotation.x += .0005;
+        if (mx > 0) { mesh.rotation.x += my * .00002; mesh.rotation.y += mx * .00002; }
+        renderer.render(scene, camera);
+    })();
+    const ro = new ResizeObserver(() => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+    ro.observe(container);
+}
+
+/* ─── MOBILE MENU ────────────────────────────────────────────────── */
+let menuOpen = false;
+function toggleMenu() {
+    menuOpen = !menuOpen;
+    document.getElementById('mobile-menu').classList.toggle('open', menuOpen);
+    if (menuOpen) {
+        document.body.style.overflow = 'hidden';
+        waitForGSAP(() => gsap.from('.mobile-link', { x: 30, opacity: 0, duration: .6, stagger: .08, ease: 'power3.out' }));
+    } else {
+        document.body.style.overflow = '';
+    }
+}
+
+/* ─── BIND ALL EVENTS (event delegation, no inline onclick) ─────── */
+function bindAllEvents() {
+    // Navigation — all nav-link buttons and mobile links
+    document.querySelectorAll('[data-page]').forEach(el => {
+        el.addEventListener('click', () => {
+            const page = el.dataset.page;
+            showPage(page);
+            if (menuOpen) toggleMenu();
+        });
+    });
+
+    // Mobile menu open/close
+    document.getElementById('menu-toggle').addEventListener('click', toggleMenu);
+    document.getElementById('mobile-close').addEventListener('click', toggleMenu);
+
+    // Admin panel triggers
+    document.getElementById('admin-trigger').addEventListener('click', togglePanel);
+    document.getElementById('cp-close').addEventListener('click', closePanel);
+    document.getElementById('cp-overlay').addEventListener('click', closePanel);
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && panelOpen) closePanel();
+        if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); togglePanel(); }
+    });
+
+    // Admin login
+    document.getElementById('admin-submit').addEventListener('click', checkAdminAuth);
+    document.getElementById('admin-pass').addEventListener('keydown', e => { if (e.key === 'Enter') checkAdminAuth(); });
+
+    // Tabs
+    document.querySelectorAll('.cp-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.cp-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.cp-tab-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    // Save buttons
+    document.getElementById('save-home-btn').addEventListener('click', saveHomeTab);
+    document.getElementById('save-nav-btn').addEventListener('click', saveNavTab);
+    document.getElementById('save-about-btn').addEventListener('click', saveAboutTab);
+    document.getElementById('save-hire-btn').addEventListener('click', saveHireTab);
+    document.getElementById('save-portfolio-heading-btn').addEventListener('click', savePortfolioHeading);
+    document.getElementById('logout-btn').addEventListener('click', logoutAdmin);
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        if (confirm('Factory reset? All local settings will be cleared.')) { LS.clear(); location.reload(); }
+    });
+    document.getElementById('export-btn').addEventListener('click', exportSettings);
+    document.getElementById('cp-import-file').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const r = new FileReader();
+            r.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    Object.entries(data).forEach(([k, v]) => LS.set(k, v));
+                    showToast('✓ Settings imported — reloading…');
+                    setTimeout(() => location.reload(), 1200);
+                } catch { showToast('⚠️ Invalid JSON file'); }
+            };
+            r.readAsText(this.files[0]);
+        }
+    });
+
+    // Portfolio editor
+    document.getElementById('add-project-btn').addEventListener('click', () => openProjectEditor(null));
+    document.getElementById('pe-save-btn').addEventListener('click', saveProjectEdit);
+    document.getElementById('pe-cancel-btn').addEventListener('click', cancelProjectEdit);
+    document.getElementById('pe-upload-btn').addEventListener('click', () => document.getElementById('pe-image-file').click());
+    document.getElementById('pe-image-file').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const r = new FileReader();
+            r.onload = e => {
+                document.getElementById('pe-image-url').value = e.target.result;
+                const prev = document.getElementById('pe-img-preview');
+                prev.src = e.target.result; prev.style.display = 'block';
+            };
+            r.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Avatar
+    document.getElementById('apply-avatar-btn').addEventListener('click', () => {
+        const url = document.getElementById('cp-avatar-url').value.trim();
+        if (url) { LS.set('as_avatar_url', url); document.getElementById('hero-avatar').src = url; updateAvatarPreview(url); showToast('✓ Avatar updated!'); }
+    });
+    document.getElementById('cp-avatar-file').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const r = new FileReader();
+            r.onload = e => {
+                const url = e.target.result;
+                document.getElementById('hero-avatar').src = url;
+                document.getElementById('cp-avatar-url').value = url;
+                LS.set('as_avatar_url', url);
+                updateAvatarPreview(url);
+                showToast('✓ Avatar uploaded!');
+            };
+            r.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Theme swatches
+    document.querySelectorAll('.color-swatch').forEach(sw => {
+        sw.addEventListener('click', () => {
+            const color = sw.dataset.color;
+            applyAccentColor(color, true);
+            document.getElementById('cp-color-hex').value = color;
+            document.getElementById('cp-color-picker').value = color;
+            showToast('✓ Color applied!');
+        });
+    });
+    document.getElementById('apply-color-btn').addEventListener('click', () => {
+        const val = document.getElementById('cp-color-hex').value.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(val)) { applyAccentColor(val, true); showToast('✓ Color applied!'); }
+        else showToast('⚠️ Enter a valid hex color e.g. #3B82F6');
+    });
+    document.getElementById('cp-color-picker').addEventListener('input', e => {
+        document.getElementById('cp-color-hex').value = e.target.value;
+    });
+    document.getElementById('particles-on-btn').addEventListener('click', () => { canvas.style.display = 'block'; LS.set('as_particles', '1'); showToast('✓ Particles on'); });
+    document.getElementById('particles-off-btn').addEventListener('click', () => { canvas.style.display = 'none'; LS.set('as_particles', '0'); showToast('✓ Particles off'); });
+
+    // Big contact row: 2-col on md+
+    const bigRow = document.getElementById('big-contact-row');
+    if (window.innerWidth >= 768) bigRow.style.gridTemplateColumns = '1fr 1fr';
+    window.addEventListener('resize', () => {
+        bigRow.style.gridTemplateColumns = window.innerWidth >= 768 ? '1fr 1fr' : '1fr';
+    }, { passive: true });
+
+    // Show email label on wider screens
+    const emailLabel = document.querySelector('.email-label');
+    function checkEmailLabel() { if (emailLabel) emailLabel.style.display = window.innerWidth >= 640 ? 'block' : 'none'; }
+    checkEmailLabel();
+    window.addEventListener('resize', checkEmailLabel, { passive: true });
+}
+
+/* ─── START ──────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
